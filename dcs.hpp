@@ -36,8 +36,10 @@ class DCS {
 
     std::inclusive_scan(cnt.begin(), cnt.end(), cnt.begin());
 
-    for (auto &v : I | std::views::reverse)
+    for (auto i = size_type{}; i < I.size(); i++) {
+      auto v = I[I.size() - i - 1];
       O[--cnt[func(v)]] = v;
+    }
   }
 
   auto
@@ -226,7 +228,7 @@ class DCS {
 
       auto diff = DIFF[non_dc][non_dc];
       sort_SA_non_DC(SA_non_DC, RK, SA_DC.size() + 1, S, diff, K);
-      // get SA_non_DC from the suffix where i % non_dc == 0
+      // get SA_non_DC from the suffix where i % DC_SIZE == non_dc
       SA_list.push_back(SA_non_DC);
     }
 
