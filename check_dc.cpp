@@ -5,24 +5,16 @@ using namespace std;
 vector<int> get_DC_num(int q)
 {
     vector<int> Dq;
-    q=(q/2)+1;
-    int sq = ceil(sqrt(q))+2;
-    for(int i=0;i<=sq;i++) Dq.pb(i);
-    for(int i=sq;i<q;i+=sq) Dq.pb(i);
-    Dq.pb(((q/sq)+1)*sq);
-    // cout << "DQ ";
-    // for (int i : Dq)
-    // {
-    //     cout << i << ' ';
-    // }
-    // cout << endl;
+    q=(q+1)/2;
+    int sq = ceil(sqrt(q));
+    for(int i=0;i<sq;i++) Dq.pb(i);
+    for(int i=1;i<=sq;i++) Dq.pb(i*sq);
     return Dq;
 }
 
 int main() {
   for (int i = 3; i <= 1024; i++) {
     auto dc = get_DC_num(i);
-
     // calculate difference set
     auto st = set<int>{};
     for (auto &x : dc) {
