@@ -48,7 +48,7 @@ class DCS {
     size_type n,
     auto &&cmp
   ) {
-    auto RK = std::vector<size_type>(n);
+    auto RK = std::vector<size_type>(n + DC_SIZE);
     auto K_DC = size_type{1};
     for (size_type i = 1; i < SA_DC.size(); i++) {
       K_DC += cmp(SA_DC[i - 1], SA_DC[i]);
@@ -92,11 +92,11 @@ class DCS {
   }
 
   auto
-  gen_S_DC(std::vector<size_type> &RK) {
+  gen_S_DC(size_type sa_n, std::vector<size_type> &RK) {
     auto S_DC = std::vector<size_type>{};
-    S_DC.reserve(RK.size());
+    S_DC.reserve(sa_n + DC_SIZE);
     for (auto dc : DC)
-      for (auto i = dc; i < RK.size(); i += DC_SIZE)
+      for (auto i = dc; i < sa_n; i += DC_SIZE)
         S_DC.push_back(RK[i]);
     for (auto i = size_type{}; i < DC_SIZE; i++)
       S_DC.push_back(0);
@@ -198,7 +198,7 @@ class DCS {
     // if all the DC_SIZE-mer is not unique, do the recursion
     if (K_DC != SA_DC.size() + 1) {
       // generate S in subproblem (S_DC)
-      auto S_DC = gen_S_DC(RK);
+      auto S_DC = gen_S_DC(SA.size(), RK);
 
       // do the recursion, get SA_DC from S_DC
       suffix_array(S_DC, SA_DC, K_DC);
@@ -246,27 +246,27 @@ class DCS {
 
  public:
   DCS(const std::vector<size_type> &DC_) : DC(DC_) {
+    for (auto &vv : DIFF)
+      for (auto &v : vv)
+        v = std::numeric_limits<size_type>::max();
+
     // prepare diff table
     // let d = DIFF[x][y]. (x + d) % DC_SIZE, (y + d) % DC_SIZE in DC
-    auto in_DC = std::vector<bool>(DC_SIZE);
-    for (auto &dc : DC)
-      in_DC[dc] = 1;
-
-    for (size_type x = 0; x < DC_SIZE; x++) {
-      for (size_type y = x; y < DC_SIZE; y++) {
-        bool find = false;
+    for (auto i : DC) {
+      for (auto j : DC) {
         for (size_type d = 0; d < DC_SIZE; d++) {
-          if (not in_DC[(x + d) % DC_SIZE] or not in_DC[(y + d) % DC_SIZE])
-            continue;
-          DIFF[x][y] = DIFF[y][x] = d;
-          find = true;
-          break;
+          size_type x = (i + d) % DC_SIZE;
+          size_type y = (j + d) % DC_SIZE;
+          auto &diff = DIFF[x][y];
+          diff = std::min(diff, (DC_SIZE - d) % DC_SIZE);
         }
-
-        if (not find)
-          throw std::runtime_error("invalid difference cover set");
       }
     }
+
+    for (auto &vv : DIFF)
+      for (auto &v : vv)
+        if (v == std::numeric_limits<size_type>::max())
+          throw std::runtime_error("invalid difference cover set");
   }
 
   const std::string name() const {
@@ -276,6 +276,9 @@ class DCS {
   auto
   suffix_array(const std::string &S_) {
     size_type n = S_.size();
+
+    if (n == 0)
+      return std::vector<size_type>{0};
 
     // encode string to vector<size_type>
     // append DC_SIZE '\0' at the end of S
