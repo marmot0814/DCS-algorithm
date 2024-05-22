@@ -6,45 +6,77 @@
 #include <iomanip>
 #include <queue>
 #include <chrono>
+#include <cmath>
 
 #include "dcs.hpp"
+#include "string.hpp"
 
 using size_type = uint32_t;
-void benchmark(const auto &S, auto dcs) {
+using namespace std;
+
+void benchmark(const auto &S, auto dcs)
+{
   size_type n = S.size();
 
-  auto bg = std::chrono::high_resolution_clock::now();
+  auto bg = chrono::high_resolution_clock::now();
   auto SA = dcs.suffix_array(S);
-  auto ed = std::chrono::high_resolution_clock::now();
-  std::cout << dcs.name() << " spend: " << (ed - bg).count() / 1e9 << "s\n";
+  auto ed = chrono::high_resolution_clock::now();
+  cout << dcs.name() << " spend: " << (ed - bg).count() / 1e9 << "s\n";
+  cout<<"level:"<<dcs.level<<endl;
 
-  auto SV = std::string_view{S};
-  for (auto i = 1; i <= n; i++) {
-    if (SV.substr(SA[i - 1]) < SV.substr(SA[i]))
-      continue;
+  // cout<<"S:"<<S<<endl;
+  // cout<<"SA:\n";
+  // for(auto i:SA) cout<<i<<" ";
+  // cout<<endl;
+  // for(int i=0;i<SA.size();i++)
+  // {
+  //   std::cout<<std::setw(4)<<SA[i]<<' '<<S.substr(SA[i])<<'\n';
+  // }
 
-    std::cout << "SA[" << SA[i - 1] << "] is larger than SA[" << SA[i] << "]\n";
-    std::cout << "error\n";
-    exit(0);
-  }
+  // auto SV = string_view{S};
+  // for (auto i = 1; i <= n; i++)
+  // {
+  //   if (SV.substr(SA[i - 1]) < SV.substr(SA[i]))
+  //     continue;
+
+  //   cout << "SA[" << i - 1 << "] is larger than SA[" << i << "]\n";
+  //   cout << "error\n";
+  //   exit(0);
+  // }
 }
 
-auto gen_dna_string(size_type n) {
-  auto S = std::string{};
-  for (auto i = size_type{}; i < n; i++)
-    S += "ACGT"[rand() % 4];
-  return S;
-}
 
-int main(int argc, char **argv) {
-  if (argc - 1 != 1) {
-    std::cerr << "Usage: " << argv[0] << " <sequence length>\n";
-    exit(0);
-  }
+int main()
+{
+  // size_type n=1000000,q;
+  // RandomStringGenerator rsg;
+  
+  // for(int i=2;i<31;i++){
+  //   auto S = rsg.gen_special_string(n);
+  //   benchmark(S, DCS<size_type>(i*i));
+  // }
 
-  size_type n = std::atoi(argv[1]);
-  auto S = gen_dna_string(n);
+  size_type n=1e7;
+  RandomStringGenerator rsg;
 
-  benchmark(S, DCS<64, size_type>({1, 2, 3, 6, 15, 17, 35, 43, 60}));
-  benchmark(S, DCS< 3, size_type>({1, 2}));
+  auto S = rsg.gen_rand_string(n);
+  benchmark(S, DCS<size_type>(3));
+  // S = rsg.gen_special_string(n);
+  // benchmark(S, DCS<size_type>(3));
+  // S = rsg.read_file(n);
+  // benchmark(S, DCS<size_type>(3));
+  // S = rsg.all_A(n);
+  // benchmark(S, DCS<size_type>(3));
+  
+  
+  // S = rsg.gen_rand_string(n);
+  benchmark(S, DCS<size_type>(64));
+  // S = rsg.gen_special_string(n);
+  // benchmark(S, DCS<size_type>(64));
+  // S = rsg.read_file(n);
+  // benchmark(S, DCS<size_type>(64));
+  // S = rsg.all_A(n);
+  // benchmark(S, DCS<size_type>(64));
+  
+
 }
