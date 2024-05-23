@@ -336,6 +336,29 @@ class DCS
 
 public:
   int level=0;
+
+  std::map<size_t, std::vector<size_type>> DC_lookup = {
+    { 3, std::vector<size_type>{1, 2}},
+    { 4, std::vector<size_type>{1, 2, 3}},
+    { 5, std::vector<size_type>{1, 2, 3}},
+    { 6, std::vector<size_type>{1, 2, 4}},
+    { 7, std::vector<size_type>{1, 2, 4}},
+    { 8, std::vector<size_type>{1, 2, 3, 5}},
+    { 9, std::vector<size_type>{1, 2, 3, 5}},
+    {10, std::vector<size_type>{1, 2, 3, 6}},
+    {11, std::vector<size_type>{1, 2, 3, 6}},
+    {12, std::vector<size_type>{1, 2, 4, 8}},
+    {13, std::vector<size_type>{1, 2, 4, 10}},
+    {14, std::vector<size_type>{1, 2, 3, 4, 8}},
+    {15, std::vector<size_type>{1, 2, 3, 4, 8}},
+    {16, std::vector<size_type>{1, 2, 3, 6, 9}},
+    {17, std::vector<size_type>{1, 2, 3, 5, 13}},
+    {18, std::vector<size_type>{1, 2, 3, 6, 12}},
+    {19, std::vector<size_type>{1, 2, 3, 7, 10}},
+    {20, std::vector<size_type>{1, 2, 3, 4, 7, 11}},
+    {21, std::vector<size_type>{1, 2, 5, 15, 17}}
+  };
+
   DCS(const int DCsz) : DC_SIZE(DCsz)
   {
     size_type q = DC_SIZE;
@@ -348,10 +371,9 @@ public:
       DC.push_back(i);
     for (size_type i = 1; i <= sq && i * sq < q; i++)
       DC.push_back(i * sq);
-    if(q==3){
-      DC.resize(0);
-      DC={1,2};
-    }
+
+    if (DC_lookup.count(DC_SIZE))
+      DC = DC_lookup[DC_SIZE];
 
     // for(auto i:DC) std::cout<<i<<" ";
     // std::cout<<std::endl;
